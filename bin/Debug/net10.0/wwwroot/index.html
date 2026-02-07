@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Space Shooter 3D</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            font-family: 'Courier New', monospace;
+            color: #fff;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        .player-view {
+            text-align: center;
+        }
+        .player-view img {
+            width: 100%;
+            border: 3px solid;
+            border-radius: 10px;
+            image-rendering: crisp-edges;
+        }
+        .player1 img { border-color: #0f0; }
+        .player2 img { border-color: #f00; }
+        h1 {
+            text-align: center;
+            color: #0ff;
+            text-shadow: 0 0 20px #0ff;
+        }
+        .score {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .player1 .score { color: #0f0; }
+        .player2 .score { color: #f00; }
+        .controls {
+            background: #111;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 5px;
+            justify-content: center;
+            margin: 10px 0;
+        }
+        button {
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        .p1-btn {
+            background: #0f0;
+            border-color: #0f0;
+            color: #000;
+        }
+        .p2-btn {
+            background: #f00;
+            border-color: #f00;
+            color: #000;
+        }
+        .shoot-btn {
+            grid-column: 1 / 4;
+            font-size: 20px;
+        }
+        button:active { transform: scale(0.95); }
+        .empty { visibility: hidden; }
+        #fps {
+            text-align: center;
+            color: #0ff;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>SPACE SHOOTER 3D</h1>
+    <div id='fps'>FPS: 0</div>
+    <div class='container'>
+        <div class='player-view player1'>
+            <h2>JUGADOR 1</h2>
+            <div class='score'>SCORE: <span id='score1'>0</span></div>
+            <img id='img1' width='640' height='480'>
+            <div class='controls'>
+                <p>WASD: Mover | SPACE: Disparar</p>
+                <div class='btn-grid'>
+                    <button class='empty'></button>
+                    <button class='p1-btn' id='p1-w'>W</button>
+                    <button class='empty'></button>
+                    <button class='p1-btn' id='p1-a'>A</button>
+                    <button class='p1-btn' id='p1-s'>S</button>
+                    <button class='p1-btn' id='p1-d'>D</button>
+                    <button class='p1-btn shoot-btn' id='p1-space'>DISPARO</button>
+                </div>
+            </div>
+        </div>
+        <div class='player-view player2'>
+            <h2>JUGADOR 2</h2>
+            <div class='score'>SCORE: <span id='score2'>0</span></div>
+            <img id='img2' width='640' height='480'>
+            <div class='controls'>
+                <p>Flechas: Mover | ENTER: Disparar</p>
+                <div class='btn-grid'>
+                    <button class='empty'></button>
+                    <button class='p2-btn' id='p2-up'>&#8593;</button>
+                    <button class='empty'></button>
+                    <button class='p2-btn' id='p2-left'>&#8592;</button>
+                    <button class='p2-btn' id='p2-down'>&#8595;</button>
+                    <button class='p2-btn' id='p2-right'>&#8594;</button>
+                    <button class='p2-btn shoot-btn' id='p2-enter'>DISPARO</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const img1 = document.getElementById('img1');
+        const img2 = document.getElementById('img2');
+        const score1 = document.getElementById('score1');
+        const score2 = document.getElementById('score2');
+        const fpsDisplay = document.getElementById('fps');
+
+        const keys1 = { w: false, s: false, a: false, d: false, space: false };
+        const keys2 = { up: false, down: false, left: false, right: false, enter: false };
+
+        let frameCount = 0, lastTime = Date.now();
+
+        function sendInput(player, key, pressed) {
+            fetch(`/input${player}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ [key]: pressed }),
+                keepalive: true
+            }).catch(() => {});
+        }
+
+        document.addEventListener('keydown', (e) => {
+            const k = e.key.toLowerCase();
+            if (['w','s','a','d'].includes(k) && !keys1[k]) {
+                keys1[k] = true;
+                sendInput(1, k, true);
+            }
+            if (e.key === ' ' && !keys1.space) {
+                e.preventDefault();
+                keys1.space = true;
+                sendInput(1, 'space', true);
+            }
+            if (e.key === 'ArrowUp' && !keys2.up) { e.preventDefault(); keys2.up = true; sendInput(2, 'up', true); }
+            if (e.key === 'ArrowDown' && !keys2.down) { e.preventDefault(); keys2.down = true; sendInput(2, 'down', true); }
+            if (e.key === 'ArrowLeft' && !keys2.left) { e.preventDefault(); keys2.left = true; sendInput(2, 'left', true); }
+            if (e.key === 'ArrowRight' && !keys2.right) { e.preventDefault(); keys2.right = true; sendInput(2, 'right', true); }
+            if (e.key === 'Enter' && !keys2.enter) { e.preventDefault(); keys2.enter = true; sendInput(2, 'enter', true); }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            const k = e.key.toLowerCase();
+            if (['w','s','a','d'].includes(k)) {
+                keys1[k] = false;
+                sendInput(1, k, false);
+            }
+            if (e.key === ' ') { keys1.space = false; sendInput(1, 'space', false); }
+            if (e.key === 'ArrowUp') { keys2.up = false; sendInput(2, 'up', false); }
+            if (e.key === 'ArrowDown') { keys2.down = false; sendInput(2, 'down', false); }
+            if (e.key === 'ArrowLeft') { keys2.left = false; sendInput(2, 'left', false); }
+            if (e.key === 'ArrowRight') { keys2.right = false; sendInput(2, 'right', false); }
+            if (e.key === 'Enter') { keys2.enter = false; sendInput(2, 'enter', false); }
+        });
+
+        function setupBtn(id, player, key) {
+            const btn = document.getElementById(id);
+            btn.addEventListener('mousedown', () => sendInput(player, key, true));
+            btn.addEventListener('mouseup', () => sendInput(player, key, false));
+            btn.addEventListener('mouseleave', () => sendInput(player, key, false));
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); sendInput(player, key, true); });
+            btn.addEventListener('touchend', (e) => { e.preventDefault(); sendInput(player, key, false); });
+        }
+
+        setupBtn('p1-w', 1, 'w');
+        setupBtn('p1-s', 1, 's');
+        setupBtn('p1-a', 1, 'a');
+        setupBtn('p1-d', 1, 'd');
+        setupBtn('p1-space', 1, 'space');
+        setupBtn('p2-up', 2, 'up');
+        setupBtn('p2-down', 2, 'down');
+        setupBtn('p2-left', 2, 'left');
+        setupBtn('p2-right', 2, 'right');
+        setupBtn('p2-enter', 2, 'enter');
+
+        async function update() {
+            try {
+                const [r1, r2] = await Promise.all([
+                    fetch('/frame1?' + Date.now()),
+                    fetch('/frame2?' + Date.now())
+                ]);
+
+                if (r1.ok) {
+                    img1.src = URL.createObjectURL(await r1.blob());
+                    score1.textContent = r1.headers.get('X-Score1') || '0';
+                }
+                if (r2.ok) {
+                    img2.src = URL.createObjectURL(await r2.blob());
+                    score2.textContent = r2.headers.get('X-Score2') || '0';
+                }
+
+                frameCount++;
+                const now = Date.now();
+                if (now - lastTime >= 1000) {
+                    fpsDisplay.textContent = 'FPS: ' + frameCount;
+                    frameCount = 0;
+                    lastTime = now;
+                }
+            } catch (e) {}
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+</body>
+</html>

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/rhythm/Desktop/Works/BrockRender/BrockRender.csproj": {}
+    "/home/randym/Proyectos/MantraxStudios/BrockRender/BrockRender.csproj": {}
   },
   "projects": {
-    "/home/rhythm/Desktop/Works/BrockRender/BrockRender.csproj": {
+    "/home/randym/Proyectos/MantraxStudios/BrockRender/BrockRender.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/rhythm/Desktop/Works/BrockRender/BrockRender.csproj",
+        "projectUniqueName": "/home/randym/Proyectos/MantraxStudios/BrockRender/BrockRender.csproj",
         "projectName": "BrockRender",
-        "projectPath": "/home/rhythm/Desktop/Works/BrockRender/BrockRender.csproj",
-        "packagesPath": "/home/rhythm/.nuget/packages/",
-        "outputPath": "/home/rhythm/Desktop/Works/BrockRender/obj/",
+        "projectPath": "/home/randym/Proyectos/MantraxStudios/BrockRender/BrockRender.csproj",
+        "packagesPath": "/home/randym/.nuget/packages/",
+        "outputPath": "/home/randym/Proyectos/MantraxStudios/BrockRender/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/rhythm/.nuget/NuGet/NuGet.Config"
+          "/home/randym/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
